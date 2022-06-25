@@ -1,6 +1,17 @@
-const cities = [
-    'Lisbon', 'Rio de Janeiro', 'Amsterdam', 'Sao Paulo', 'Berlin', 
-    'Moscow'
-];
+const citiesHash =
+    {
+        Lisbon: 'LIS',
+        Rio: 'GIG',
+        SaoPaulo: 'CGH',
+        Madrid: 'MAD',
+        Berlin: 'BER',
+    };
 
-export default cities
+const citiesNames = ['Lisbon', 'Rio', 'Sao Paulo', 'Madrid', 'Berlin'];
+
+const citiesAirport = {
+    citiesHash,
+    citiesNames,
+}
+
+export default citiesAirport;

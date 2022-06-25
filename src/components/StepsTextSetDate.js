@@ -7,17 +7,40 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import TextField from '@mui/material/TextField';
+import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import Autocomplete from '@mui/material/Autocomplete';
-import cities from '../assets/cities';
+import citiesAirport from '../assets/cities';
+import quoteService from '../services/quoteService';
+import { useContext } from 'react';
+import FlightContext from '../contexts/FlightContext';
 
 export default function StepsTextSetDate(props){
     const { step } = props;
     const [value, setValue] = React.useState("");
+    const cities = citiesAirport.citiesNames;
+    const airport = citiesAirport.citiesHash;
+    const { flightData, setFlightData } = useContext(FlightContext);
 
     const handleChange = (event) => {
         setValue(event.target.value);
-    };
+    };  
+
+    const handleFlight = async (event) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+        setFlightData({ ...flightData, 
+            locationArrival: data.get('locationArraival'),
+            locationDeparture: data.get('locationDeparture')
+        });
+    
+        try {
+            const quote = await quoteService.getQuote(flightData);
+            console.log(quote.pricedIti)
+        }catch (err){
+            console.log(err.response.data)
+        }
+      };
 
     if (step === 0 ) {
         return (
@@ -51,8 +74,8 @@ export default function StepsTextSetDate(props){
                     >
                         <FormControlLabel value="trip" control={<Radio />} label="Set the travel date" />
                         <FormControlLabel value="start" control={<Radio />} label="Set the start date" />
-                </RadioGroup>
-    </FormControl>
+                    </RadioGroup>
+                </FormControl>
             </Box>
         )
     }
@@ -66,6 +89,7 @@ export default function StepsTextSetDate(props){
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
+                    justifyContent: 'center',
                     gap: 7
                 }}>
 
@@ -95,43 +119,64 @@ export default function StepsTextSetDate(props){
 
     if (step===2){
         return (
-            <Stack direction='row' spacing={10} sx={{ width: '100%', height: 300 }}>
-            <Autocomplete
-                freeSolo
-                disableClearable
-                options={cities.map((option) => option)}
-                sx = {{ width: 300 }}
-                renderInput={(params) => (
-                <TextField
-                    {...params}
-                    label="From"
-                    InputProps={{
-                    ...params.InputProps,
-                    type: 'search',
-                    }}
+            <Box 
+                display='flex'
+                gap={10}
+                justifyContent= 'center'
+                alignItems='center'
+                component="form" 
+                onSubmit={handleFlight}
+                height={300}
+                noValidate sx={{ mt: 1 }
+            }>
+                <Autocomplete
+                    freeSolo
+                    disableClearable
+                    options={cities.map((option) => option)}
+                    sx = {{ width: 230 }}
+                    onChange={(event, newValue) => {
+                        setFlightData({ ...flightData, locationDeparture: airport[newValue] });
+                        }}
+                    renderInput={(params) => (
+                    <TextField
+                        {...params}
+                        label="From"
+                        id="locationDeparture"
+                        InputProps={{
+                        ...params.InputProps,
+                        type: 'search',
+                        }}
+                    />
+                    )}
                 />
-                )}
-            />
 
-            <Autocomplete
-                freeSolo
-                disableClearable
-                sx = {{ width: 300 }}
-                options={cities.map((option) => option)}
-                renderInput={(params) => (
-                <TextField
-                    {...params}
-                    label="To"
-                    InputProps={{
-                    ...params.InputProps,
-                    type: 'search',
-                    }}
+                <Autocomplete
+                    freeSolo
+                    disableClearable
+                    sx = {{ width: 230 }}
+                    options={cities.map((option) => option)}
+                    onChange={(event, newValue) => {
+                        setFlightData({ ...flightData, locationArrival: airport[newValue] });
+                        }}
+                    renderInput={(params) => (
+                    <TextField
+                        {...params}
+                        label="To"
+                        id="locationArrival"
+                        InputProps={{
+                        ...params.InputProps,
+                        type: 'search',
+                        }}
+                    />
+                    )}
                 />
-                )}
-            />
-
-            <CalendarDatePicker />
-            </Stack>
+                <CalendarDatePicker setDate={setFlightData} flightData={flightData} />
+            </Box>
         )
-    }   
+    } 
+    if (step===3){
+        return (
+            <CircularProgress />
+        )
+    }  
 }

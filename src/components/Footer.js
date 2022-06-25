@@ -13,6 +13,8 @@ export default function Footer(){
                     display: 'flex',
                     bgcolor: '#ECF0F1',
                     color: '#000000',
+                    position: 'fixed',
+                    bottom: 0,
                 }}>
                     <Box
                         component = 'img'
